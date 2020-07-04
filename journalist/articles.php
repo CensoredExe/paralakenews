@@ -1,5 +1,5 @@
 <?php
-
+include_once "../includes/functions.php";
 include "../includes/connection.php";
 require '../steamauth/steamauth.php';
 if(isset($_SESSION['steamid'])) {
@@ -53,7 +53,7 @@ if($_SESSION['user_role']=='user'){
           <div class="sidebar-sticky">
             <ul class="nav flex-column">
               <li class="nav-item">
-                <a class="nav-link active" href="index.php">
+                <a class="nav-link" href="index.php">
                   <span data-feather="home"></span>
                   Dashboard <span class="sr-only">(current)</span>
                 </a>
@@ -65,13 +65,14 @@ if($_SESSION['user_role']=='user'){
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="articles.php">
+                <a class="nav-link active" href="articles.php">
                   <span data-feather="shopping-cart"></span>
                   Your Articles
                 </a>
               </li>
               
             </ul>
+
             <?php
             if($_SESSION['user_role']=='admin'){
               ?>
@@ -121,7 +122,6 @@ if($_SESSION['user_role']=='user'){
               <?php
             }
             ?>
-            
           </div>
         </nav>
 
@@ -133,30 +133,43 @@ if($_SESSION['user_role']=='user'){
             </div>
           </div>
           <!-- Content goes here -->
-          <h2>Your bio:</h2>
-          <form method="POST">
-          <textarea name="bio"><?php echo $_SESSION['user_bio']; ?></textarea><br>
-          <button name="submit" type="submit" class="btn btn-primary">Submit</button>
-          </form>
-          <?php
-          $id = $_SESSION['user_id'];
-          if(isset($_POST['submit'])){
-            $bio = $_POST['bio'];
-            if(empty($bio)){
-              echo "Error, bio must not be empty";
-            }else {
-              $sql = "UPDATE `users` SET `user_bio`='$bio' WHERE `user_id`='$id'";
-              if(mysqli_query($conn, $sql)){
-                $_SESSION['user_bio'] = $bio;
-                echo "<script>window.location=window.location</script>";
-              }else {
-                echo "Error";
-              }
+          <h2>Your articles</h2>
+          
+
+          <table class="table table-striped">
+            <thead>
+                <tr>
+                <th scope="col">#</th>
+                <th scope="col">Title</th>
+                <th scope="col">Date</th>
+                <th scope="col">Views</th>
+                <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php 
+            $id = $_SESSION['user_id'];
+            $sql = "SELECT * FROM `articles` WHERE `author`='$id' ORDER BY `id` DESC";
+            $result = mysqli_query($conn, $sql);
+            while($row = mysqli_fetch_assoc($result)){
+                ?>
+                <tr>
+                    <th scope="row"><?php echo $row['id']; ?></th>
+                    <td><a href="../article/?article=<?php echo $row['url']; ?>"><?php echo $row['title']; ?></a></td>
+                    <td><?php echo $row['date']; ?></td>
+                    <td><?Php echo getViews($row['id']); ?></td>
+                    <td <?php if($row['status']=='active'){?> style="color: green;" <?php }else{ ?> style="color:orange;" <?php } ?>><?php echo $row['status']; ?></td>
+                    
+                </tr>
+                <?php
             }
-          }
-          ?>
-          <br>
-          <h2>Make sure you're in the <a href="#">discord</a></h2>
+            ?>
+                
+               
+            </tbody>
+        </table>
+
+
           
         </main>
       </div>

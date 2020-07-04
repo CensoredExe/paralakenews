@@ -53,7 +53,7 @@ if($_SESSION['user_role']=='user'){
           <div class="sidebar-sticky">
             <ul class="nav flex-column">
               <li class="nav-item">
-                <a class="nav-link active" href="index.php">
+                <a class="nav-link" href="index.php">
                   <span data-feather="home"></span>
                   Dashboard <span class="sr-only">(current)</span>
                 </a>
@@ -94,7 +94,7 @@ if($_SESSION['user_role']=='user'){
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="jobs.php">
+                <a class="nav-link active" href="jobs.php">
                   <span data-feather="file-text"></span>
                   Jobs
                 </a>
@@ -133,31 +133,68 @@ if($_SESSION['user_role']=='user'){
             </div>
           </div>
           <!-- Content goes here -->
-          <h2>Your bio:</h2>
+          <h2>Create a category</h2>
           <form method="POST">
-          <textarea name="bio"><?php echo $_SESSION['user_bio']; ?></textarea><br>
-          <button name="submit" type="submit" class="btn btn-primary">Submit</button>
+          <div class="form-group">
+            <label for="title">Job name</label>
+            <input type="text" name="title" class="form-control" id="title" aria-describedby="emailHelp" placeholder="Enter name">
+          </div>
+          <div class="form-group">
+            <label for="description">Job description</label>
+            <input type="text" name="description" class="form-control" id="description" aria-describedby="emailHelp" placeholder="Enter name">
+          </div>
+          <div class="form-group">
+            <label for="application">Application link</label>
+            <input type="text" name="application" class="form-control" id="application" aria-describedby="emailHelp" placeholder="Enter name">
+          </div>
+            <button name="submit" type="submit" class="btn btn-primary">Submit</button>
           </form>
-          <?php
-          $id = $_SESSION['user_id'];
-          if(isset($_POST['submit'])){
-            $bio = $_POST['bio'];
-            if(empty($bio)){
-              echo "Error, bio must not be empty";
-            }else {
-              $sql = "UPDATE `users` SET `user_bio`='$bio' WHERE `user_id`='$id'";
-              if(mysqli_query($conn, $sql)){
-                $_SESSION['user_bio'] = $bio;
-                echo "<script>window.location=window.location</script>";
-              }else {
-                echo "Error";
-              }
+          <?php 
+            if(isset($_POST['submit'])){
+                $name = htmlspecialchars(mysqli_real_escape_string($conn, $_POST['title']));
+                $description = htmlspecialchars(mysqli_real_escape_string($conn, $_POST['description']));
+                $link = htmlspecialchars(mysqli_real_escape_string($conn, $_POST['application']));
+                if(empty($name) || empty($description) || empty($description)){
+                    echo "Error, field is empty";
+                }else {
+                    $sql = "INSERT INTO `jobs` (`name`, `description`, `link`) VALUES ('$name', '$description', '$link')";
+                    if(mysqli_query($conn, $sql)){
+                        echo "Success, added.";
+                    }else {
+                        echo "Error";
+                    }
+                }
             }
-          }
           ?>
           <br>
-          <h2>Make sure you're in the <a href="#">discord</a></h2>
-          
+          <table class="table table-striped">
+            <thead>
+                <tr>
+                <th scope="col">#</th>
+                <th scope="col">Title</th>
+                <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php 
+            
+            $sql = "SELECT * FROM `jobs` ORDER BY `id` DESC";
+            $result = mysqli_query($conn, $sql);
+            while($row = mysqli_fetch_assoc($result)){
+                ?>
+                <tr>
+                    <th scope="row"><?php echo $row['id']; ?></th>
+                    <td><a href="../jobs/"><?php echo $row['name']; ?></a></td>
+                    
+                    <td><a href="deletejob.php?id=<?Php echo $row['id']; ?>">delete</a></td>
+                </tr>
+                <?php
+            }
+            ?>
+                
+               
+            </tbody>
+        </table>
         </main>
       </div>
     </div>

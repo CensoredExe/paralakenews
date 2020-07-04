@@ -1,6 +1,7 @@
 <?php
 
 include "../includes/connection.php";
+include "../includes/functions.php";
 require '../steamauth/steamauth.php';
 if(isset($_SESSION['steamid'])) {
     include ('../steamauth/userInfo.php'); //To access the $steamprofile array
@@ -10,8 +11,9 @@ if(!isset($_SESSION['user_id'])){
   exit();
 }
 if($_SESSION['user_role']=='user'){
-  echo "<script>window.location='../'</script>";
+    echo "<script>window.location='../'</script>";
 }
+
 ?>
 
 <!doctype html>
@@ -53,7 +55,7 @@ if($_SESSION['user_role']=='user'){
           <div class="sidebar-sticky">
             <ul class="nav flex-column">
               <li class="nav-item">
-                <a class="nav-link active" href="index.php">
+                <a class="nav-link" href="index.php">
                   <span data-feather="home"></span>
                   Dashboard <span class="sr-only">(current)</span>
                 </a>
@@ -72,6 +74,7 @@ if($_SESSION['user_role']=='user'){
               </li>
               
             </ul>
+
             <?php
             if($_SESSION['user_role']=='admin'){
               ?>
@@ -81,7 +84,7 @@ if($_SESSION['user_role']=='user'){
             </h6>
             <ul class="nav flex-column mb-2">
               <li class="nav-item">
-                <a class="nav-link" href="pending.php">
+                <a class="nav-link active" href="pending.php">
                   <span data-feather="file-text"></span>
                   Pending Posts 
                   <!-- <button style="font-size:12px; padding:1px 5px;" class="btn btn-danger">9</button> -->
@@ -121,7 +124,6 @@ if($_SESSION['user_role']=='user'){
               <?php
             }
             ?>
-            
           </div>
         </nav>
 
@@ -133,30 +135,43 @@ if($_SESSION['user_role']=='user'){
             </div>
           </div>
           <!-- Content goes here -->
-          <h2>Your bio:</h2>
-          <form method="POST">
-          <textarea name="bio"><?php echo $_SESSION['user_bio']; ?></textarea><br>
-          <button name="submit" type="submit" class="btn btn-primary">Submit</button>
-          </form>
-          <?php
-          $id = $_SESSION['user_id'];
-          if(isset($_POST['submit'])){
-            $bio = $_POST['bio'];
-            if(empty($bio)){
-              echo "Error, bio must not be empty";
-            }else {
-              $sql = "UPDATE `users` SET `user_bio`='$bio' WHERE `user_id`='$id'";
-              if(mysqli_query($conn, $sql)){
-                $_SESSION['user_bio'] = $bio;
-                echo "<script>window.location=window.location</script>";
-              }else {
-                echo "Error";
-              }
+          <h2>Pending articles</h2>
+          
+
+          <table class="table table-striped">
+            <thead>
+                <tr>
+                <th scope="col">#</th>
+                <th scope="col">Title</th>
+                <th scope="col">Date</th>
+                <th scope="col">Author</th>
+                <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php 
+            
+            $sql = "SELECT * FROM `articles` WHERE `status`='pending' ORDER BY `id` DESC";
+            $result = mysqli_query($conn, $sql);
+            while($row = mysqli_fetch_assoc($result)){
+                ?>
+                <tr>
+                    <th scope="row"><?php echo $row['id']; ?></th>
+                    <td><a href="../article/?article=<?php echo $row['url']; ?>"><?php echo $row['title']; ?></a></td>
+                    <td><?php echo $row['date']; ?></td>
+                    <td><?php echo getUser($row['author']); ?></td>
+                    <td><a href="accept.php?id=<?php echo $row['id']; ?>">ACCEPT</a></td>
+                    
+                </tr>
+                <?php
             }
-          }
-          ?>
-          <br>
-          <h2>Make sure you're in the <a href="#">discord</a></h2>
+            ?>
+                
+               
+            </tbody>
+        </table>
+
+
           
         </main>
       </div>

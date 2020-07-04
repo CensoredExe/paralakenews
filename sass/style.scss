@@ -3,8 +3,11 @@
     margin: 0 auto;
 }
 
-.featured-post {
-    background-image:linear-gradient(to right, rgba(0, 0, 0, 0.644), rgba(0, 0, 0, 0.267)), url(../../test.jpg);
-    background-size: cover;
-    background-position: center center;
+
+.notification {
+    padding:2px;
+    color:#fff;
+    background-color: rgb(223, 63, 35);
+    font-size:14px;
+    margin-right:3px;
 }

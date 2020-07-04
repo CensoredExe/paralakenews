@@ -9,4 +9,12 @@
   background-size: cover;
   background-position: center center;
 }
+
+.notification {
+  padding: 2px;
+  color: #fff;
+  background-color: #df3f23;
+  font-size: 14px;
+  margin-right: 3px;
+}
 /*# sourceMappingURL=style.css.map */

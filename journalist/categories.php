@@ -53,7 +53,7 @@ if($_SESSION['user_role']=='user'){
           <div class="sidebar-sticky">
             <ul class="nav flex-column">
               <li class="nav-item">
-                <a class="nav-link active" href="index.php">
+                <a class="nav-link" href="index.php">
                   <span data-feather="home"></span>
                   Dashboard <span class="sr-only">(current)</span>
                 </a>
@@ -112,7 +112,7 @@ if($_SESSION['user_role']=='user'){
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="categories.php">
+                <a class="nav-link active" href="categories.php">
                   <span data-feather="users"></span>
                   Categories
                 </a>
@@ -133,31 +133,34 @@ if($_SESSION['user_role']=='user'){
             </div>
           </div>
           <!-- Content goes here -->
-          <h2>Your bio:</h2>
+          <h2>Create a category</h2>
           <form method="POST">
-          <textarea name="bio"><?php echo $_SESSION['user_bio']; ?></textarea><br>
-          <button name="submit" type="submit" class="btn btn-primary">Submit</button>
+          <div class="form-group">
+            <label for="exampleInputEmail1">Cat name</label>
+            <input type="text" name="category" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter name">
+          </div>
+          <div class="form-group">
+            <label for="exampleInputEmail1">Colour</label>
+            <input type="text" name="color" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter name">
+          </div>
+            <button name="submit" type="submit" class="btn btn-primary">Submit</button>
           </form>
-          <?php
-          $id = $_SESSION['user_id'];
-          if(isset($_POST['submit'])){
-            $bio = $_POST['bio'];
-            if(empty($bio)){
-              echo "Error, bio must not be empty";
-            }else {
-              $sql = "UPDATE `users` SET `user_bio`='$bio' WHERE `user_id`='$id'";
-              if(mysqli_query($conn, $sql)){
-                $_SESSION['user_bio'] = $bio;
-                echo "<script>window.location=window.location</script>";
-              }else {
-                echo "Error";
-              }
+          <?php 
+            if(isset($_POST['submit'])){
+                $cat = htmlspecialchars(mysqli_real_escape_string($conn, $_POST['category']));
+                $color = htmlspecialchars(mysqli_real_escape_string($conn, $_POST['color']));
+                if(empty($cat)){
+                    echo "Error, field is empty";
+                }else {
+                    $sql = "INSERT INTO `categories` (`title`, `color`) VALUES ('$cat', '$color')";
+                    if(mysqli_query($conn, $sql)){
+                        echo "Success, added.";
+                    }else {
+                        echo "Error";
+                    }
+                }
             }
-          }
           ?>
-          <br>
-          <h2>Make sure you're in the <a href="#">discord</a></h2>
-          
         </main>
       </div>
     </div>

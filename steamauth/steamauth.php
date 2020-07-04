@@ -28,7 +28,7 @@ if (isset($_GET['login'])){
 			echo 'User has canceled authentication!';
 		} else {
 			if($openid->validate()) { 
-				echo "text";
+				
 				$id = $openid->identity;
 				$ptn = "/^https?:\/\/steamcommunity\.com\/openid\/id\/(7[0-9]{15,25}+)$/";
 				preg_match($ptn, $id, $matches);
@@ -43,10 +43,17 @@ if (isset($_GET['login'])){
 					
 					while($row = mysqli_fetch_assoc($result)){
 						$_SESSION['user_id'] = $row['user_id'];
-                        $_SESSION['user_name'] = $row['user_name'];
+						$_SESSION['user_name'] = $row['user_name'];
+						$_SESSION['user_bio'] = $row['user_bio'];
                         $_SESSION['user_role'] = $row['user_role'];
 						$_SESSION['user_steam'] = $row['user_steam'];
-						echo "text1";
+						$_SESSION['user_avatar'] = $row['user_avatar'];
+						$name = "user";
+						$value = $_SESSION['user_steam'];
+						$string = generateRandomString(25);
+						$sql = "INSERT INTO `cookies` (`steamid`, `value`) VALUES ('$value', '$string')";
+						mysqli_query($conn, $sql);
+						setcookie($name,$string, time() + (86400 * 30), "/");
 					}
 				}else {
 					
@@ -55,23 +62,31 @@ if (isset($_GET['login'])){
 					// Create account
 					$dos = date("H:i:s d/m/y");
                     $role = "user";
-                    $balance = 0.0;
+					$balance = 0.0;
+					$userpfp = $content['response']['players'][0]['avatarfull'];
 					$name =  $content['response']['players'][0]['personaname'];
 					$bio = "This user has not set a custom bio....";
-					$sql = "INSERT INTO `users` (`user_name`,  `user_role`, `user_bio`, `user_dos`, `user_steam`) 
-					VALUES ('$name', '$role', '$bio' ,'$dos', '$steam')";
-					echo $sql;
+					$sql = "INSERT INTO `users` (`user_name`,  `user_role`, `user_bio`, `user_dos`, `user_steam`, `user_avatar`) 
+					VALUES ('$name', '$role', '$bio' ,'$dos', '$steam', '$userpfp')";
+					
 					mysqli_query($conn, $sql);
 					$sql = "SELECT * FROM `users` WHERE `user_steam`='$steam'";
 					$result = mysqli_query($conn, $sql);
 					
 					while($row = mysqli_fetch_assoc($result)){
 						$_SESSION['user_id'] = $row['user_id'];
+						$_SESSION['user_bio'] = $row['user_bio'];
                         $_SESSION['user_name'] = $row['user_name'];
                         $_SESSION['user_code'] = $row['user_code'];
                         $_SESSION['user_role'] = $row['user_role'];
                         $_SESSION['user_steam'] = $row['user_steam'];
-                        
+						$_SESSION['user_avatar'] = $row['user_avatar'];
+						$name = "user";
+						$value = $_SESSION['user_steam'];
+						$string = generateRandomString(25);
+						$sql = "INSERT INTO `cookies` (`steamid`, `value`) VALUES ('$value', '$string')";
+						mysqli_query($conn, $sql);
+						setcookie($name,$string, time() + (86400 * 30), "/");
 					}
 				}
 				if (!headers_sent()) {
@@ -102,6 +117,7 @@ if (isset($_GET['logout'])){
 	require 'SteamConfig.php';
 	session_unset();
 	session_destroy();
+	setcookie("user", "", time() - 3600, "/");
 	header('Location: '.$steamauth['logoutpage']);
 	exit;
 }
