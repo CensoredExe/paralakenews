@@ -137,7 +137,7 @@
                 $_SESSION['user_role'] = $row['user_role'];
                 $_SESSION['user_steam'] = $row['user_steam'];
                 $_SESSION['user_avatar'] = $row['user_avatar'];
-                
+                $_SESSION['user_bio'] = $row['user_bio'];
             }
             $name = "user";
 			$value = $_SESSION['user_steam'];

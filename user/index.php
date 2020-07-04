@@ -8,23 +8,20 @@
       checkLogin();
     }
     
-    if(isset($_GET['article'])){
-      $id = mysqli_real_escape_string($conn, $_GET['article']);
-      $sql = "SELECT * FROM `articles` WHERE `url`='$id'";
-      $result = mysqli_query($conn, $sql);
-      if(mysqli_num_rows($result)>0){
-        //Article exists
+    if(isset($_GET['id'])){
+        $id = mysqli_real_escape_string($conn, $_GET['id']);
+
+        $totalviews = getUserViews($id);
+        $sql = "SELECT * FROM `users` WHERE `user_id`='$id'";
+        $result = mysqli_query($conn, $sql);
         while($row = mysqli_fetch_assoc($result)){
-          $titlemeta = $row['title'];
-          $descriptionmeta = $row['description'];
+            $name = $row['user_name'];
+            $steam = $row['user_steam'];
+            $bio = $row['user_bio'];
         }
-      }else {
-        $titlemeta = "Jobs";
-        $descriptionmeta = "Jobs";
-      }
     }else {
-        $titlemeta = "Jobs";
-        $descriptionmeta = "Jobs";
+        echo "<script>window.location='../'</script>";
+        exit();
     }
 
 ?>
@@ -120,8 +117,7 @@
     </nav>
   </div>
   
-  <strong class="d-inline-block mb-2 text-danger" style="color: red !important">Jobs</strong>
-  <h1 class="display-4 font-italic">Apply to join ParalakeNews</h1>
+  
   <div style="width:100%;display:block;">
   </div>
   
@@ -133,19 +129,11 @@
     <div class="col-md-8 blog-main">
       
       <div class="blog-post">
-          <?php
-            $sql = "SELECT * FROM `jobs` ORDER BY `id` DESC";
-            $result = mysqli_query($conn, $sql);
-            while($row = mysqli_fetch_assoc($result)){
-                ?>
-                <div class="job" style="margin-bottom: 20px;">
-                    <h3><?php echo $row['name'] ?></h3>
-                    <p><?php echo $row['description']; ?></p>
-                    <a target="_blank" href="<?php echo $row['link']; ?>">Apply</a>
-                </div>
-                <?php
-            }
-          ?>
+          <h1><?php echo $name; ?></h1>
+          <div>
+          <?php echo $bio; ?>
+          </div>
+          <a target="_blank" href="https://steamcommunity.com/profiles/<?php echo $steam; ?>">Contact</a>
         
       </div><!-- /.blog-post -->
 
@@ -176,7 +164,34 @@
         
   </div><!-- /.row -->
 <!-- Comments -->
+<div style="padding-top:20px;" class="row">
 
+<div class="row mb-2">
+  <?php 
+  $sql = "SELECT * FROM `articles` WHERE `status`='active' AND `author`='$id' ORDER BY `id` DESC LIMIT 100";
+  $result = mysqli_query($conn, $sql);
+  while($row = mysqli_fetch_assoc($result)){
+    ?>
+    <div class="col-md-6">
+        <div class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm position-relative">
+          <div class="col p-4 d-flex flex-column position-static">
+            <strong class="d-inline-block mb-2 text-success" style="color: <?php echo getCatColor($row['category']); ?> !important;"><?php echo getCat($row['category']); ?></strong>
+            <h3 class="mb-0"><?php echo $row['title']; ?></h3>
+            <div class="mb-1 text-muted"><?php echo $row['date']; ?></div>
+            <p class="card-text mb-auto"><?php echo $row['description']; ?></p>
+            <a href="article/?article=<?php echo $row['url']; ?>" class="stretched-link">Continue reading</a>
+          </div>
+          
+        </div>
+      </div>
+    <?php
+  }
+  ?>
+    
+    
+  </div>
+</div>
+</div>
 
 
 <br>

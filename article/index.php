@@ -154,7 +154,7 @@
   
   <strong class="d-inline-block mb-2 text-danger" style="color: <?php echo getCatColor($cat); ?> !important"><?php echo getCat($cat); ?> </strong>
   <h1 class="display-4 font-italic"><?php echo $title; ?></h1>
-  <p class="blog-post-meta"><?php echo $date; ?> by <a href="#"><?php echo getUser($author); ?></a></p>
+  <p class="blog-post-meta"><?php echo $date; ?> by <a href="../user/?id=<?Php echo $author; ?>"><?php echo getUser($author); ?></a></p>
   
   <div style="width:100%;display:block;">
   <img src="../uploads/<?php echo $image; ?>" style="height:100%;max-height:1000px;max-width:100%;display:block;margin:0 auto;">
