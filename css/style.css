@@ -3,18 +3,22 @@
   margin: 0 auto;
 }
 
-.featured-post {
-  background-image: -webkit-gradient(linear, left top, right top, from(rgba(0, 0, 0, 0.644)), to(rgba(0, 0, 0, 0.267))), url(../../test.jpg);
-  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.644), rgba(0, 0, 0, 0.267)), url(../../test.jpg);
-  background-size: cover;
-  background-position: center center;
-}
-
 .notification {
   padding: 2px;
   color: #fff;
   background-color: #df3f23;
   font-size: 14px;
   margin-right: 3px;
+}
+
+.blog-post img {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+@media (max-width: 800px) {
+  .mobile-disappear {
+    display: none !important;
+  }
 }
 /*# sourceMappingURL=style.css.map */

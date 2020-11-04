@@ -141,7 +141,7 @@ if($_SESSION['user_role']=='user'){
           <?php
           $id = $_SESSION['user_id'];
           if(isset($_POST['submit'])){
-            $bio = $_POST['bio'];
+            $bio = mysqli_real_escape_string($conn, $_POST['bio']);
             if(empty($bio)){
               echo "Error, bio must not be empty";
             }else {

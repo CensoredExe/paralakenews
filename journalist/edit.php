@@ -1,6 +1,7 @@
 <?php
 
 include "../includes/connection.php";
+include "../includes/functions.php";
 require '../steamauth/steamauth.php';
 if(isset($_SESSION['steamid'])) {
     include ('../steamauth/userInfo.php'); //To access the $steamprofile array
@@ -12,6 +13,25 @@ if(!isset($_SESSION['user_id'])){
 if($_SESSION['user_role']=='user'){
   echo "<script>window.location='../'</script>";
 }
+if(!isset($_GET['id'])){
+    echo "<script>window.location='../'</script>";
+    exit();
+}else {
+    $id = urlToID(mysqli_real_escape_string($conn, $_GET['id']));
+}
+
+$sql = "SELECT * FROM `articles` WHERE `id`='$id'";
+$result = mysqli_query($conn, $sql);
+while($row = mysqli_fetch_assoc($result)){
+    $title = $row['title'];
+    $content = $row['content'];
+    $url = $row['url'];
+    $status = "pending";
+    $image = $row['image'];
+    $description = $row['description'];
+    
+}
+
 ?>
 
 <!doctype html>
@@ -136,21 +156,21 @@ if($_SESSION['user_role']=='user'){
           <form method="POST" enctype="multipart/form-data">
           <div class="form-group">
                 <label for="title">Title</label>
-                <input type="text" name="title" class="form-control" id="title" aria-describedby="emailHelp" value="<?php if(isset($_POST['title'])){ echo $_POST['title']; } ?>" placeholder="title">
+                <input type="text" name="title" class="form-control" id="title" aria-describedby="emailHelp" value="<?php echo $title; ?>" placeholder="title">
                 
             </div>
             <div class="form-group">
                 <label for="description">Description, appears as a preview (95 char max)</label>
-                <input type="text" name="description" class="form-control" id="description" aria-describedby="emailHelp" value="<?php if(isset($_POST['description'])){ echo $_POST['description']; } ?>" placeholder="title">
+                <input type="text" name="description" class="form-control" id="description" aria-describedby="emailHelp" value="<?php echo $description; ?>" placeholder="title">
                 
             </div>
             <div class="form-group">
                 <label for="url">URL, format like this test-title-example</label>
-                <input type="text" name="url" class="form-control" id="url" aria-describedby="emailHelp" value="<?php if(isset($_POST['url'])){ echo $_POST['url']; } ?>" placeholder="title">
+                <input type="text" name="url" class="form-control" id="url" aria-describedby="emailHelp" value="<?php echo $url; ?>" placeholder="title">
                 
             </div>
             <div class="form-group">
-              <label for="exampleFormControlSelect1">Category</label>
+              <label for="exampleFormControlSelect1">Category <span style="color:red;font-size:12px;">*CATEGORY DOESNT UPDATE, MANUALLY UPDATE WHILST EDITING*</span></label>
               <select name="cat" class="form-control" id="exampleFormControlSelect1">
                 <?php 
                 $sql = "SELECT * FROM `categories`";
@@ -165,7 +185,7 @@ if($_SESSION['user_role']=='user'){
             </div>
             <div class="form-group">
                 <label for="content">Content</label>
-                <textarea name="content" id="content"><?php if(isset($_POST['content'])){ echo $_POST['content']; } ?></textarea>
+                <textarea name="content" id="content"><?php echo $content; ?></textarea>
                 
             </div>
             <div class="form-group">
@@ -184,7 +204,6 @@ if($_SESSION['user_role']=='user'){
               $url = htmlspecialchars(mysqli_real_escape_string($conn, $_POST['url']));
               $status = "pending";
               $date = date("H:i:s d/m/y");
-              $author = $_SESSION['user_id'];
               
               if(empty($title) || empty($content) || empty($url) || empty($description)){
                 echo "Error, empty fields";
@@ -195,12 +214,7 @@ if($_SESSION['user_role']=='user'){
                 exit();
               }
 
-              $sql = "SELECT * FROM `articles` WHERE `url`='$url'";
-              $result = mysqli_query($conn, $sql);
-              if(mysqli_num_rows($result)>0){
-                echo "Error, url in use.";
-                exit();
-              }
+
                 $target_dir = "../uploads/";
                 $target_file = $target_dir . basename($_FILES["file"]["name"]);
                 $uploadOk = 1;
@@ -244,8 +258,8 @@ if($_SESSION['user_role']=='user'){
                 if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file)) {
                     //echo "The file ". basename( $_FILES["file"]["name"]). " has been uploaded.";
                     $file = basename( $_FILES["file"]["name"]);
-                    $sql = "INSERT INTO `articles` (`title`, `content`, `date`, `url`, `author`, `status`, `image`, `description`, `category`) 
-                    VALUES ('$title', '$content', '$date', '$url', '$author', '$status', '$file', '$description', '$cat')";
+                    
+                    $sql = "UPDATE `articles` SET `title`='$title', `content`='$content', `date`='$date', `url`='$url', `status`='pending', `category`='$cat', `image`='$image' WHERE `id`='$id'";
                     if(mysqli_query($conn, $sql)){
                       echo "Article created.";
                     }else {

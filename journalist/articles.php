@@ -144,6 +144,7 @@ if($_SESSION['user_role']=='user'){
                 <th scope="col">Date</th>
                 <th scope="col">Views</th>
                 <th scope="col">Status</th>
+                <th scope="col">Edit</th>
                 </tr>
             </thead>
             <tbody>
@@ -159,7 +160,7 @@ if($_SESSION['user_role']=='user'){
                     <td><?php echo $row['date']; ?></td>
                     <td><?Php echo getViews($row['id']); ?></td>
                     <td <?php if($row['status']=='active'){?> style="color: green;" <?php }else{ ?> style="color:orange;" <?php } ?>><?php echo $row['status']; ?></td>
-                    
+                    <td><a href="edit.php?id=<?php echo $row['url']; ?>">EDIT</a></td>
                 </tr>
                 <?php
             }

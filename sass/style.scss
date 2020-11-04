@@ -3,11 +3,23 @@
     margin: 0 auto;
 }
 
-
 .notification {
-    padding:2px;
-    color:#fff;
+    padding: 2px;
+    color: #fff;
     background-color: rgb(223, 63, 35);
-    font-size:14px;
-    margin-right:3px;
+    font-size: 14px;
+    margin-right: 3px;
+}
+
+.blog-post {
+    img {
+        width: 100% !important;
+        height: 100% !important;
+    }
+}
+
+@media (max-width:800px) {
+    .mobile-disappear {
+        display: none !important;
+    }
 }

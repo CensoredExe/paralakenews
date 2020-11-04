@@ -70,36 +70,36 @@
     <!-- Custom styles for this template -->
     <link href="../bootstrap/blog.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="../css/dist/style.min.css">
+    <link rel="stylesheet" href="../css/dist/style.min.css?v=3">
 </head>
 <body>
 <div class="container">
   <header class="blog-header py-3">
     <div class="row flex-nowrap justify-content-between align-items-center">
-      <div class="col-4 pt-1">
-        <a class="text-muted" href="../jobs/">Jobs</a>
+      <div class="col-4 pt-1 mobile-disappear">
+        <a class="text-muted mobile-disappear" href="../jobs/">Jobs</a>
       </div>
       <div class="col-4 text-center">
         <a class="blog-header-logo text-dark" href="../">ParalakeNews</a>
       </div>
       <div class="col-4 d-flex justify-content-end align-items-center">
-        <a class="text-muted" href="../search/" aria-label="Search">
+        <!-- <a class="text-muted" href="../search/" aria-label="Search">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="mx-3" role="img" viewBox="0 0 24 24" focusable="false"><title>Search</title><circle cx="10.5" cy="10.5" r="7.5"/><path d="M21 21l-5.2-5.2"/></svg>
-        </a>
+        </a> -->
         <?php
         if(isset($_SESSION['user_id'])){
           if($_SESSION['user_role'] == 'admin' || $_SESSION['user_role'] == 'journalist'){
             ?>
-            <a class="btn btn-sm btn-outline-secondary" style="margin-right:10px;" href="../journalist/">journalist</a>
+            <a class="btn btn-sm btn-outline-secondary mobile-disappear" style="margin-right:10px;" href="../journalist/">journalist</a>
             <?php 
           }
           ?>
 
-            <a class="btn btn-sm btn-outline-secondary" href="?logout">Logout</a>
+            <a class="btn btn-sm btn-outline-secondary mobile-disappear" href="?logout">Logout</a>
           <?php
         }else {
           ?>
-            <a class="btn btn-sm btn-outline-secondary" href="?login">Steam Login</a>
+            <a class="btn btn-sm btn-outline-secondary mobile-disappear" href="?login">Steam Login</a>
           <?php
         }
         ?>
@@ -157,7 +157,7 @@
   <p class="blog-post-meta"><?php echo $date; ?> by <a href="../user/?id=<?Php echo $author; ?>"><?php echo getUser($author); ?></a></p>
   
   <div style="width:100%;display:block;">
-  <img src="../uploads/<?php echo $image; ?>" style="height:100%;max-height:1000px;max-width:100%;display:block;margin:0 auto;">
+  <img src="../uploads/<?php echo $image; ?>" style="max-height:1000px;max-width:100%;display:block;margin:0 auto;">
   </div>
   
   
@@ -169,6 +169,7 @@
       
     <p class="blog-post-meta"><?php echo getViews(urlToID($id)); ?> Views</p>
       <div class="blog-post">
+      
         <?php
         echo $content;
         ?>
@@ -190,9 +191,11 @@
       <div class="p-4">
         <h4 class="font-italic">Elsewhere</h4>
         <ol class="list-unstyled">
-          <li><a href="#">Twitter</a></li>
+         
+          <li><a href="https://help.perpheads.com">Guide</a></li>
           <li><a href="https://perpheads.com">Forums</a></li>
           <li><a href="../jobs/">Apply</a></li>
+          <li><a href="https://discord.gg/D76CC75">Discord</a></li>
         </ol>
       </div>
     </aside><!-- /.blog-sidebar -->
@@ -224,6 +227,7 @@
           date_default_timezone_set("Europe/London");
           $date = date("H:i:s d/m/y");
           $article = urlToID($url);
+          $author = $_SESSION['user_id'];
           $sql = "INSERT INTO `comments` (`content`, `author`, `date`, `article`) 
           VALUES ('$comment', '$author', '$date', '$article')";
           if(mysqli_query($conn, $sql)){
