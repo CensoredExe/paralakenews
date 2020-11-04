@@ -1,37 +1,20 @@
 <?php
-    include "../includes/functions.php";
-    include "../includes/connection.php";
-    require '../steamauth/steamauth.php';
+    include "includes/functions.php";
+    include "includes/connection.php";
+    require 'steamauth/steamauth.php';
     if(isset($_SESSION['steamid'])) {
-        include ('../steamauth/userInfo.php'); //To access the $steamprofile array
+        include ('steamauth/userInfo.php'); //To access the $steamprofile array
     }else {
       checkLogin();
     }
     
-    if(isset($_GET['id'])){
-        $id = mysqli_real_escape_string($conn, $_GET['id']);
-
-        $totalviews = getUserViews($id);
-        $sql = "SELECT * FROM `users` WHERE `user_id`='$id'";
-        $result = mysqli_query($conn, $sql);
-        while($row = mysqli_fetch_assoc($result)){
-            $name = $row['user_name'];
-            $steam = $row['user_steam'];
-            $bio = $row['user_bio'];
-        }
-    }else {
-        echo "<script>window.location='../'</script>";
-        exit();
-    }
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paralake News - <?php echo $titlemeta; ?></title>
-    <meta name="description" content="<?php echo $descriptionmeta; ?>">
+    <title>Paralake News - The latest news from the city of paralake!</title>
     <!-- Bootstrap -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
         <!-- Favicons -->
@@ -64,38 +47,38 @@
     <!-- Custom styles for this template -->
     <link href="https://fonts.googleapis.com/css?family=Playfair+Display:700,900" rel="stylesheet">
     <!-- Custom styles for this template -->
-    <link href="../bootstrap/blog.css" rel="stylesheet">
+    <link href="bootstrap/blog.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="../css/dist/style.min.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div class="container">
   <header class="blog-header py-3">
     <div class="row flex-nowrap justify-content-between align-items-center">
-      <div class="col-4 pt-1">
-        <a class="text-muted" href="../jobs/">Jobs</a>
+      <div class="col-4 pt-1 mobile-disappear">
+        <a class="text-muted mobile-disappear" href="jobs/">Jobs</a>
       </div>
       <div class="col-4 text-center">
-        <a class="blog-header-logo text-dark" href="../">ParalakeNews</a>
+        <a class="blog-header-logo text-dark" href="#">ParalakeNews</a>
       </div>
       <div class="col-4 d-flex justify-content-end align-items-center">
-        <a class="text-muted" href="../search/" aria-label="Search">
+        <!-- <a class="text-muted" href="search/" aria-label="Search">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="mx-3" role="img" viewBox="0 0 24 24" focusable="false"><title>Search</title><circle cx="10.5" cy="10.5" r="7.5"/><path d="M21 21l-5.2-5.2"/></svg>
-        </a>
+        </a> -->
         <?php
         if(isset($_SESSION['user_id'])){
           if($_SESSION['user_role'] == 'admin' || $_SESSION['user_role'] == 'journalist'){
             ?>
-            <a class="btn btn-sm btn-outline-secondary" style="margin-right:10px;" href="../journalist/">journalist</a>
+            <a class="btn btn-sm btn-outline-secondary mobile-disappear" style="margin-right:10px;" href="journalist/">journalist</a>
             <?php 
           }
           ?>
 
-            <a class="btn btn-sm btn-outline-secondary" href="?logout">Logout</a>
+            <a class="btn btn-sm btn-outline-secondary mobile-disappear" href="?logout">Logout</a>
           <?php
         }else {
           ?>
-            <a class="btn btn-sm btn-outline-secondary" href="?login">Steam Login</a>
+            <a class="btn btn-sm btn-outline-secondary mobile-disappear" href="?login">Steam Login</a>
           <?php
         }
         ?>
@@ -103,6 +86,7 @@
       </div>
     </div>
   </header>
+
   <div class="nav-scroller py-1 mb-2">
     <nav class="nav d-flex justify-content-between">
     <?php
@@ -110,65 +94,52 @@
     $result = mysqli_query($conn, $sql);
     while($row = mysqli_fetch_assoc($result)){
       ?>
-      <a class="p-2 text-muted" href="../cat/?id=<?php echo $row['id']; ?>"><?php echo $row['title']; ?></a>
+      <a class="p-2 text-muted" href="cat/?id=<?php echo $row['id']; ?>"><?php echo $row['title']; ?></a>
       <?php
     }
     ?>
+      
     </nav>
   </div>
-  
-  
-  <div style="width:100%;display:block;">
+<?php
+  $sql = "SELECT * FROM `featured` ORDER BY `id` DESC LIMIT 1";
+  $result = mysqli_query($conn, $sql);
+  while($row = mysqli_fetch_assoc($result)){
+    $article = $row['article'];
+    $sql = "SELECT * FROM `articles` WHERE `id`='$article'";
+    $result2 = mysqli_query($conn, $sql);
+    while($row2 = mysqli_fetch_assoc($result2)){
+      $image = $row2['image'];
+      $title = $row2['title'];
+      $cat = $row2['category'];
+      $description = $row2['description'];
+      $url = $row2['url'];
+    }
+    ?>
+    <div class="jumbotron p-4 p-md-5 text-white rounded bg-dark featured-post">
+    <div class="col-md-6 px-0">
+        
+      <h1 class="display-4 font-italic"><?php echo $title; ?></h1>
+      <strong class="d-inline-block mb-2 text-danger" style="color: <?php echo getCatColor($cat); ?> !important;"><?php echo getCat($cat); ?></strong>
+      <p class="lead my-3 ubuntu"><?php echo $description; ?></p>
+      <p class="lead mb-0"><a href="article/?article=<?php echo $url; ?>" class="text-white font-weight-bold">Continue reading...</a></p>
+    </div>
   </div>
+  <style>
+  .featured-post {
+    background-image:linear-gradient(to right, rgba(0, 0, 0, 0.644), rgba(0, 0, 0, 0.267)), url("../uploads/<?php echo $image; ?>");
+    background-size: cover;
+    background-position: center center;
+}
+</style>
+    <?php
+  }
+?>
   
-  
 
-<main role="main" class="container" style="margin-top:20px;">
-  <div class="row" style="padding-top:40px;">
-      
-    <div class="col-md-8 blog-main">
-      
-      <div class="blog-post">
-          <h1><?php echo $name; ?></h1>
-          <div>
-          <?php echo $bio; ?>
-          </div>
-          <a target="_blank" href="https://steamcommunity.com/profiles/<?php echo $steam; ?>">Contact</a>
-        
-      </div><!-- /.blog-post -->
-
-      
-     
-
-    </div><!-- /.blog-main -->
-
-
-
-    <aside class="col-md-4 blog-sidebar">
-      <div class="p-4 mb-3 bg-light rounded">
-        <h4 class="font-italic">About</h4>
-        <p class="mb-0">ParalakeNews is a community ran news website that is designed to keep the community in the loop!</p>
-      </div>
-
-      <div class="p-4">
-        <h4 class="font-italic">Elsewhere</h4>
-        <ol class="list-unstyled">
-          <li><a href="#">Twitter</a></li>
-          <li><a href="#">Forums</a></li>
-          <li><a href="#">Apply</a></li>
-        </ol>
-      </div>
-    </aside><!-- /.blog-sidebar -->
-    
-        
-        
-  </div><!-- /.row -->
-<!-- Comments -->
-<div style="padding-top:20px;" class="row">
-
-<div class="row mb-2">
+  <div class="row mb-2">
   <?php 
-  $sql = "SELECT * FROM `articles` WHERE `status`='active' AND `author`='$id' ORDER BY `id` DESC LIMIT 100";
+  $sql = "SELECT * FROM `articles` WHERE `status`='active' ORDER BY `id` DESC LIMIT 100";
   $result = mysqli_query($conn, $sql);
   while($row = mysqli_fetch_assoc($result)){
     ?>
@@ -178,9 +149,10 @@
             <strong class="d-inline-block mb-2 text-success" style="color: <?php echo getCatColor($row['category']); ?> !important;"><?php echo getCat($row['category']); ?></strong>
             <h3 class="mb-0"><?php echo $row['title']; ?></h3>
             <div class="mb-1 text-muted"><?php echo $row['date']; ?></div>
-            <p class="card-text mb-auto"><?php echo $row['description']; ?></p>
-            <a href="../article/?article=<?php echo $row['url']; ?>" class="stretched-link">Continue reading</a>
+            <p class="card-text mb-auto ubuntu"><?php echo $row['description']; ?></p>
+            <a href="article/?article=<?php echo $row['url']; ?>" class="stretched-link">Continue reading</a>
           </div>
+          
         </div>
       </div>
     <?php
@@ -190,20 +162,20 @@
     
   </div>
 </div>
-</div>
-
-
-<br>
-
+<main role="main" class="container">
+  <div class="row">
+    
+    
+  </div><!-- /.row -->
+      
 </main><!-- /.container -->
-</div>
+
 <footer class="blog-footer">
   <p>News site built for the <a href="https://perpheads.com/">perpheads</a> community by <a href="https://perpheads.com/members/censoredexe.4585/">@censoredexe</a>.</p>
   <p>
     <a href="#">Back to top</a>
   </p>
 </footer>
-  
     <!-- Bootstrap -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>

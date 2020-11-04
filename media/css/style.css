@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Turret+Road:wght@300;500;700&family=Ubuntu&display=swap');
+
+* {
+  font-family: 'Turret Road', cursive !important;
+}
+
+.ubuntu {
+  font-family: 'Ubuntu', sans-serif !important;
+}
+
+p {
+  font-family: 'Ubuntu', sans-serif !important;
+}
+
+.row {
+  width: 95%;
+  margin: 0 auto;
+}
+
+.notification {
+  padding: 2px;
+  color: #fff;
+  background-color: #df3f23;
+  font-size: 14px;
+  margin-right: 3px;
+}
+
+.blog-post img {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+@media (max-width: 800px) {
+  .mobile-disappear {
+    display: none !important;
+  }
+}
+/*# sourceMappingURL=style.css.map */

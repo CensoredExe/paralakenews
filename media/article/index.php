@@ -8,20 +8,24 @@
       checkLogin();
     }
     
-    if(isset($_GET['id'])){
-        $id = mysqli_real_escape_string($conn, $_GET['id']);
-
-        $totalviews = getUserViews($id);
-        $sql = "SELECT * FROM `users` WHERE `user_id`='$id'";
-        $result = mysqli_query($conn, $sql);
+    if(isset($_GET['article'])){
+      $id = mysqli_real_escape_string($conn, $_GET['article']);
+      $sql = "SELECT * FROM `articles` WHERE `url`='$id'";
+      $result = mysqli_query($conn, $sql);
+      if(mysqli_num_rows($result)>0){
+        //Article exists
+        addView(urlToID($id));
         while($row = mysqli_fetch_assoc($result)){
-            $name = $row['user_name'];
-            $steam = $row['user_steam'];
-            $bio = $row['user_bio'];
+          $titlemeta = $row['title'];
+          $descriptionmeta = $row['description'];
         }
+      }else {
+        $titlemeta = "Article not found";
+        $descriptionmeta = "Article not found";
+      }
     }else {
-        echo "<script>window.location='../'</script>";
-        exit();
+        $titlemeta = "Article not found";
+        $descriptionmeta = "Article not found";
     }
 
 ?>
@@ -66,36 +70,36 @@
     <!-- Custom styles for this template -->
     <link href="../bootstrap/blog.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="../css/dist/style.min.css">
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
 <div class="container">
   <header class="blog-header py-3">
     <div class="row flex-nowrap justify-content-between align-items-center">
-      <div class="col-4 pt-1">
-        <a class="text-muted" href="../jobs/">Jobs</a>
+      <div class="col-4 pt-1 mobile-disappear">
+        <a class="text-muted mobile-disappear" href="../jobs/">Jobs</a>
       </div>
       <div class="col-4 text-center">
         <a class="blog-header-logo text-dark" href="../">ParalakeNews</a>
       </div>
       <div class="col-4 d-flex justify-content-end align-items-center">
-        <a class="text-muted" href="../search/" aria-label="Search">
+        <!-- <a class="text-muted" href="../search/" aria-label="Search">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="mx-3" role="img" viewBox="0 0 24 24" focusable="false"><title>Search</title><circle cx="10.5" cy="10.5" r="7.5"/><path d="M21 21l-5.2-5.2"/></svg>
-        </a>
+        </a> -->
         <?php
         if(isset($_SESSION['user_id'])){
           if($_SESSION['user_role'] == 'admin' || $_SESSION['user_role'] == 'journalist'){
             ?>
-            <a class="btn btn-sm btn-outline-secondary" style="margin-right:10px;" href="../journalist/">journalist</a>
+            <a class="btn btn-sm btn-outline-secondary mobile-disappear" style="margin-right:10px;" href="../journalist/">journalist</a>
             <?php 
           }
           ?>
 
-            <a class="btn btn-sm btn-outline-secondary" href="?logout">Logout</a>
+            <a class="btn btn-sm btn-outline-secondary mobile-disappear" href="?logout">Logout</a>
           <?php
         }else {
           ?>
-            <a class="btn btn-sm btn-outline-secondary" href="?login">Steam Login</a>
+            <a class="btn btn-sm btn-outline-secondary mobile-disappear" href="?login">Steam Login</a>
           <?php
         }
         ?>
@@ -116,25 +120,59 @@
     ?>
     </nav>
   </div>
+  <?php
+  if(isset($_GET['article'])){
+    $id = mysqli_real_escape_string($conn, $_GET['article']);
+    $sql = "SELECT * FROM `articles` WHERE `url`='$id'";
+    $result = mysqli_query($conn, $sql);
+    if(mysqli_num_rows($result)>0){
+      //Article exists
+      while($row = mysqli_fetch_assoc($result)){
+        $title = $row['title'];
+        $url = $row['url'];
+        $content = $row['content'];
+        $image = $row['image'];
+        $author = $row['author'];
+        $date = $row['date'];
+        $cat = $row['category'];
+      }
+    }else {
+      ?>
+      <h1>Error, article not found</h1>
+      <p>Go <a href="../">back</a>?</p>
+      <?php
+      exit();
+    }
+  }else {
+    ?>
+    <h1>Error, article not found</h1>
+    <p>Go <a href="../">back</a>?</p>
+    <?php
+    exit();
+  }
+  ?>
   
+  <strong class="d-inline-block mb-2 text-danger" style="color: <?php echo getCatColor($cat); ?> !important"><?php echo getCat($cat); ?> </strong>
+  <h1 class="display-4 font-italic"><?php echo $title; ?></h1>
+  <p class="blog-post-meta"><?php echo $date; ?> by <a href="../user/?id=<?Php echo $author; ?>"><?php echo getUser($author); ?></a></p>
   
   <div style="width:100%;display:block;">
+  <img src="../../uploads/<?php echo $image; ?>" style="max-height:1000px;max-width:100%;display:block;margin:0 auto;">
   </div>
   
   
 
 <main role="main" class="container" style="margin-top:20px;">
-  <div class="row" style="padding-top:40px;">
+  <div class="row">
       
     <div class="col-md-8 blog-main">
       
-      <div class="blog-post">
-          <h1><?php echo $name; ?></h1>
-          <div>
-          <?php echo $bio; ?>
-          </div>
-          <a target="_blank" href="https://steamcommunity.com/profiles/<?php echo $steam; ?>">Contact</a>
-        
+    <p class="blog-post-meta"><?php echo getViews(urlToID($id)); ?> Views</p>
+      <div class="blog-post ubuntu">
+      
+        <?php
+        echo $content;
+        ?>
       </div><!-- /.blog-post -->
 
       
@@ -147,15 +185,17 @@
     <aside class="col-md-4 blog-sidebar">
       <div class="p-4 mb-3 bg-light rounded">
         <h4 class="font-italic">About</h4>
-        <p class="mb-0">ParalakeNews is a community ran news website that is designed to keep the community in the loop!</p>
+        <p class="mb-0 ubuntu">ParalakeNews is a community ran news website that is designed to keep the community in the loop!</p>
       </div>
 
       <div class="p-4">
         <h4 class="font-italic">Elsewhere</h4>
         <ol class="list-unstyled">
-          <li><a href="#">Twitter</a></li>
-          <li><a href="#">Forums</a></li>
-          <li><a href="#">Apply</a></li>
+         
+          <li><a href="https://help.perpheads.com">Guide</a></li>
+          <li><a href="https://perpheads.com">Forums</a></li>
+          <li><a href="../jobs/">Apply</a></li>
+          <li><a href="https://discord.gg/D76CC75">Discord</a></li>
         </ol>
       </div>
     </aside><!-- /.blog-sidebar -->
@@ -164,35 +204,71 @@
         
   </div><!-- /.row -->
 <!-- Comments -->
-<div style="padding-top:20px;" class="row">
 
-<div class="row mb-2">
-  <?php 
-  $sql = "SELECT * FROM `articles` WHERE `status`='active' AND `author`='$id' ORDER BY `id` DESC LIMIT 100";
-  $result = mysqli_query($conn, $sql);
-  while($row = mysqli_fetch_assoc($result)){
+<?php 
+  if(isset($_SESSION['user_id'])){
     ?>
-    <div class="col-md-6">
-        <div class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm position-relative">
-          <div class="col p-4 d-flex flex-column position-static">
-            <strong class="d-inline-block mb-2 text-success" style="color: <?php echo getCatColor($row['category']); ?> !important;"><?php echo getCat($row['category']); ?></strong>
-            <h3 class="mb-0"><?php echo $row['title']; ?></h3>
-            <div class="mb-1 text-muted"><?php echo $row['date']; ?></div>
-            <p class="card-text mb-auto"><?php echo $row['description']; ?></p>
-            <a href="../article/?article=<?php echo $row['url']; ?>" class="stretched-link">Continue reading</a>
-          </div>
+    <form method="POST">
+      <div class="form-group">
+        <label for="comment">Comment</label>
+        <textarea style="width:100%;" name="comment" class="form-control" id="comment" rows="2" required></textarea>
+      </div>
+      <button name="submit" type="submit" class="btn btn-primary">Comment</button>
+    </form>
+    <?php
+    if(isset($_POST['submit'])){
+      $comment = htmlspecialchars(mysqli_real_escape_string($conn, $_POST['comment']));
+      if(empty($comment)){
+        echo "Error, comment field is empty";
+      }else {
+        if(strlen($comment) > 1000){
+          echo "Error, comment is too long. Keep it under 1000 chars.";
+        }else {
+          date_default_timezone_set("Europe/London");
+          $date = date("H:i:s d/m/y");
+          $article = urlToID($url);
+          $author = $_SESSION['user_id'];
+          $sql = "INSERT INTO `comments` (`content`, `author`, `date`, `article`) 
+          VALUES ('$comment', '$author', '$date', '$article')";
+          if(mysqli_query($conn, $sql)){
+            echo "Success";
+          }else {
+            echo "Error.";
+          }
+        }
+      }
+    }
+  }else {
+    ?>
+    <p style="color:orangered;">Log in to comment</p>
+    <?php
+    loginbutton("rectangle");
+  }
+?>
+<?php
+  $article = urlToID($url);
+  $sql = "SELECT * FROM `comments` WHERE `article`='$article'";
+  $result = mysqli_query($conn, $sql);
+  if(mysqli_num_rows($result) < 1){
+    ?>
+    <br>
+    <h2>No comments to display</h2>
+    <?php
+  }else {
+    while($row = mysqli_fetch_assoc($result)){
+      ?>
+      <div class="card" style="width: 100%;margin:15px 0;box-sizing:border-box;">
+        <div class="card-body">
+          <h5 class="card-title"><?php echo getUser($row['author']); ?></h5>
+          <h6 class="card-subtitle mb-2 text-muted"><?php echo $row['date']; ?></h6>
+          <p class="card-text"><?php echo $row['content']; ?></p>
+          
         </div>
       </div>
-    <?php
+      <?php
+    }
   }
-  ?>
-    
-    
-  </div>
-</div>
-</div>
-
-
+?>
 <br>
 
 </main><!-- /.container -->

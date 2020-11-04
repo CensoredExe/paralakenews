@@ -8,20 +8,23 @@
       checkLogin();
     }
     
-    if(isset($_GET['id'])){
-        $id = mysqli_real_escape_string($conn, $_GET['id']);
-
-        $totalviews = getUserViews($id);
-        $sql = "SELECT * FROM `users` WHERE `user_id`='$id'";
-        $result = mysqli_query($conn, $sql);
+    if(isset($_GET['article'])){
+      $id = mysqli_real_escape_string($conn, $_GET['article']);
+      $sql = "SELECT * FROM `articles` WHERE `url`='$id'";
+      $result = mysqli_query($conn, $sql);
+      if(mysqli_num_rows($result)>0){
+        //Article exists
         while($row = mysqli_fetch_assoc($result)){
-            $name = $row['user_name'];
-            $steam = $row['user_steam'];
-            $bio = $row['user_bio'];
+          $titlemeta = $row['title'];
+          $descriptionmeta = $row['description'];
         }
+      }else {
+        $titlemeta = "Jobs";
+        $descriptionmeta = "Jobs";
+      }
     }else {
-        echo "<script>window.location='../'</script>";
-        exit();
+        $titlemeta = "Jobs";
+        $descriptionmeta = "Jobs";
     }
 
 ?>
@@ -72,30 +75,30 @@
 <div class="container">
   <header class="blog-header py-3">
     <div class="row flex-nowrap justify-content-between align-items-center">
-      <div class="col-4 pt-1">
-        <a class="text-muted" href="../jobs/">Jobs</a>
+      <div class="col-4 pt-1 mobile-disappear">
+        <a class="text-muted mobile-disappear" href="../jobs/">Jobs</a>
       </div>
       <div class="col-4 text-center">
         <a class="blog-header-logo text-dark" href="../">ParalakeNews</a>
       </div>
       <div class="col-4 d-flex justify-content-end align-items-center">
-        <a class="text-muted" href="../search/" aria-label="Search">
+        <!-- <a class="text-muted" href="../search/" aria-label="Search">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="mx-3" role="img" viewBox="0 0 24 24" focusable="false"><title>Search</title><circle cx="10.5" cy="10.5" r="7.5"/><path d="M21 21l-5.2-5.2"/></svg>
-        </a>
+        </a> -->
         <?php
         if(isset($_SESSION['user_id'])){
           if($_SESSION['user_role'] == 'admin' || $_SESSION['user_role'] == 'journalist'){
             ?>
-            <a class="btn btn-sm btn-outline-secondary" style="margin-right:10px;" href="../journalist/">journalist</a>
+            <a class="btn btn-sm btn-outline-secondary mobile-disappear" style="margin-right:10px;" href="../journalist/">journalist</a>
             <?php 
           }
           ?>
 
-            <a class="btn btn-sm btn-outline-secondary" href="?logout">Logout</a>
+            <a class="btn btn-sm btn-outline-secondary mobile-disappear" href="?logout">Logout</a>
           <?php
         }else {
           ?>
-            <a class="btn btn-sm btn-outline-secondary" href="?login">Steam Login</a>
+            <a class="btn btn-sm btn-outline-secondary mobile-disappear" href="?login">Steam Login</a>
           <?php
         }
         ?>
@@ -117,7 +120,8 @@
     </nav>
   </div>
   
-  
+  <strong class="d-inline-block mb-2 text-danger" style="color: red !important">Jobs</strong>
+  <h1 class="display-4 font-italic">Apply to join ParalakeNews</h1>
   <div style="width:100%;display:block;">
   </div>
   
@@ -129,11 +133,19 @@
     <div class="col-md-8 blog-main">
       
       <div class="blog-post">
-          <h1><?php echo $name; ?></h1>
-          <div>
-          <?php echo $bio; ?>
-          </div>
-          <a target="_blank" href="https://steamcommunity.com/profiles/<?php echo $steam; ?>">Contact</a>
+          <?php
+            $sql = "SELECT * FROM `jobs` ORDER BY `id` DESC";
+            $result = mysqli_query($conn, $sql);
+            while($row = mysqli_fetch_assoc($result)){
+                ?>
+                <div class="job" style="margin-bottom: 20px;">
+                    <h3><?php echo $row['name'] ?></h3>
+                    <p><?php echo $row['description']; ?></p>
+                    <a target="_blank" href="<?php echo $row['link']; ?>">Apply</a>
+                </div>
+                <?php
+            }
+          ?>
         
       </div><!-- /.blog-post -->
 
@@ -153,9 +165,10 @@
       <div class="p-4">
         <h4 class="font-italic">Elsewhere</h4>
         <ol class="list-unstyled">
-          <li><a href="#">Twitter</a></li>
-          <li><a href="#">Forums</a></li>
+        <li><a href="https://help.perpheads.com">Guide</a></li>
+          <li><a href="https://perpheads.com">Forums</a></li>
           <li><a href="#">Apply</a></li>
+          <li><a href="https://discord.gg/D76CC75">Discord</a></li>
         </ol>
       </div>
     </aside><!-- /.blog-sidebar -->
@@ -164,33 +177,7 @@
         
   </div><!-- /.row -->
 <!-- Comments -->
-<div style="padding-top:20px;" class="row">
 
-<div class="row mb-2">
-  <?php 
-  $sql = "SELECT * FROM `articles` WHERE `status`='active' AND `author`='$id' ORDER BY `id` DESC LIMIT 100";
-  $result = mysqli_query($conn, $sql);
-  while($row = mysqli_fetch_assoc($result)){
-    ?>
-    <div class="col-md-6">
-        <div class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm position-relative">
-          <div class="col p-4 d-flex flex-column position-static">
-            <strong class="d-inline-block mb-2 text-success" style="color: <?php echo getCatColor($row['category']); ?> !important;"><?php echo getCat($row['category']); ?></strong>
-            <h3 class="mb-0"><?php echo $row['title']; ?></h3>
-            <div class="mb-1 text-muted"><?php echo $row['date']; ?></div>
-            <p class="card-text mb-auto"><?php echo $row['description']; ?></p>
-            <a href="../article/?article=<?php echo $row['url']; ?>" class="stretched-link">Continue reading</a>
-          </div>
-        </div>
-      </div>
-    <?php
-  }
-  ?>
-    
-    
-  </div>
-</div>
-</div>
 
 
 <br>
