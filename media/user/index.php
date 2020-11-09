@@ -66,7 +66,7 @@
     <!-- Custom styles for this template -->
     <link href="../bootstrap/blog.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="../css/dist/style.min.css">
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
 <div class="container">

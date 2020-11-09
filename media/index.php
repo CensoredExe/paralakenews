@@ -136,7 +136,7 @@
   }
 ?>
   
-
+<audio src="audio.mp3" controls style="display: block;margin: 0 auto;margin-bottom: 20px;margin-top:-10px;"></audio>
   <div class="row mb-2">
   <?php 
   $sql = "SELECT * FROM `articles` WHERE `status`='active' ORDER BY `id` DESC LIMIT 100";
